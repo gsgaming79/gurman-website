@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gurman Tech Accounts Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #e0e6f1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      text-align: center;
+      margin-bottom: 2rem;
+      user-select: none;
+    }
+
+    header h1 {
+      font-weight: 600;
+      font-size: 2.5rem;
+      letter-spacing: 0.05em;
+      color: #66fcf1;
+      text-shadow: 0 0 6px #45a29e;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 1.6rem 2rem;
+      box-shadow: 0 8px 20px rgb(0 255 255 / 0.15);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgb(0 255 255 / 0.3);
+    }
+
+    .card-icon {
+      font-size: 3.2rem;
+      color: #45a29e;
+      margin-bottom: 1rem;
+      user-select: none;
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #66fcf1;
+    }
+
+    .card-desc {
+      flex-grow: 1;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      color: #c4d1e0aa;
+      margin-bottom: 1rem;
+      white-space: pre-wrap;
+      user-select: text;
+      overflow-y: auto;
+      max-height: 100px;
+    }
+
+    .btn-back {
+      margin-top: 2rem;
+      background-color: #45a29e;
+      color: #0b0c10;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 1.6rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 12px #45a29e;
+      transition: background-color 0.3s ease;
+      align-self: center;
+      user-select: none;
+    }
+
+    .btn-back:hover {
+      background-color: #66fcf1;
+    }
+
+    #accountDetails {
+      white-space: pre-wrap;
+      font-family: 'Courier New', Courier, monospace;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-radius: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      color: #d0f0f7;
+      box-shadow: inset 0 0 8px #45a29e;
+      user-select: text;
+    }
+
+    /* Loading overlay */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 32, 39, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+      color: #66fcf1;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: none;
+    }
+
+    #loadingOverlay.active {
+      display: flex;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+      header h1 {
+        font-size: 1.8rem;
+      }
+      .card-desc {
+        max-height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Gurman Tech Accounts</h1>
+    <p style="color:#45a29e; user-select:none; font-style: italic;">Secure Dashboard for Your Accounts</p>
+  </header>
+
+  <main id="mainContainer" aria-label="Accounts List">
+    <div class="card account-btn" data-account="steam" tabindex="0" role="button" aria-pressed="false" aria-label="Open Steam account details">
+      <div class="card-icon">🎮</div>
+      <div class="card-title">Steam Account</div>
+      <div class="card-desc">Click to view your Steam login credentials and status.</div>
+    </div>
+    <div class="card account-btn" data-account="crunchyroll" tabindex="0" role="button" aria-pressed="false" aria-label="Open Crunchyroll account details">
+      <div class="card-icon">📺</div>
+      <div class="card-title">Crunchyroll Account</div>
+      <div class="card-desc">Access your Crunchyroll premium subscription details here.</div>
+    </div>
+    <div class="card account-btn" data-account="prime" tabindex="0" role="button" aria-pressed="false" aria-label="Open Amazon Prime account details">
+      <div class="card-icon">🎥</div>
+      <div class="card-title">Amazon Prime Account</div>
+      <div class="card-desc">View your active Amazon Prime membership info.</div>
+    </div>
+    <div class="card account-btn" data-account="cards" tabindex="0" role="button" aria-pressed="false" aria-label="Open credit card details">
+      <div class="card-icon">💳</div>
+      <div class="card-title">Credit Cards</div>
+      <div class="card-desc">Manage and view your saved credit card information securely.</div>
+    </div>
+  </main>
+
+  <section id="accountScreen" aria-live="polite" aria-label="Account details screen" tabindex="-1" style="display:none; max-width: 900px; width: 100%; margin-top: 2rem;">
+    <h2 id="accountTitle" style="color:#66fcf1; margin-bottom:1rem; user-select:none;">Account Details</h2>
+    <pre id="accountDetails" tabindex="0" aria-label="Account credentials"></pre>
+    <button id="backBtn" class="btn-back" type="button" aria-describedby="backBtnDesc">Back to Accounts</button>
+    <span id="backBtnDesc" class="sr-only">Returns to the accounts list</span>
+  </section>
+
+  <div id="loadingOverlay" role="alert" aria-live="assertive" aria-atomic="true">Loading...</div>
+
+  <script>
+    const accountData = {
+      steam: `User: GurmanSingh
+Pass: xyz@123
+Steam Guard: Enabled
+Last login: 2025-05-20
+`,
+      crunchyroll: `User: gurmancrunchyroll
+Pass: strongpass!456
+Subscription: Premium
+Expiry: 2025-12-01
+`,
+      prime: `User: gurmanprimeuser
+Pass: prim3Acc#789
+Membership: Active
+Next Billing Date: 2025-06-15
+`,
+      cards: `Visa **** 1234
+Name: Gurman Singh
+Expiry: 12/26
+CVV: *** (secure)
+
+Mastercard **** 5678
+Name: Gurman Singh
+Expiry: 08/27
+CVV: *** (secure)
+`
+    };
+
+    const mainContainer = document.getElementById('mainContainer');
+    const accountScreen = document.getElementById('accountScreen');
+    const accountTitle = document.getElementById('accountTitle');
+    const accountDetails = document.getElementById('accountDetails');
+    const backBtn = document.getElementById('backBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    function showLoading() {
+      loadingOverlay.classList.add('active');
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.remove('active');
+    }
+
+    function openAccount(accountKey) {
+      showLoading();
+      setTimeout(() => {
+        const content = accountData[accountKey] || 'Account data not found.';
+        accountTitle.textContent = accountKey.charAt(0).toUpperCase() + accountKey.slice(1) + ' Account Details';
+        accountDetails.textContent = content;
+
+        mainContainer.style.display = 'none';
+        accountScreen.style.display = 'block';
+        accountScreen.focus();
+
+        hideLoading();
+      }, 700);
+    }
+
+    function backToMain() {
+      accountScreen.style.display = 'none';
+      mainContainer.style.display = 'grid';
+      mainContainer.querySelector('.account-btn').focus();
+    }
+
+    mainContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.account-btn');
+      if (btn) {
+        openAccount(btn.getAttribute('data-account'));
+      }
+    });
+
+    mainContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const btn = e.target.closest('.account-btn');
+        if (btn) {
+          e.preventDefault();
+          openAccount(btn.getAttribute('data-account'));
+        }
+      }
+    });
+
+    backBtn.addEventListener('click', backToMain);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && accountScreen.style.display === 'block') {
+        backToMain();
+      }
+    });
+  </script>
+</body>
+</html>
