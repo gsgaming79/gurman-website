@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -157,6 +156,7 @@
       margin-top: 2rem;
       text-align: center;
       user-select: none;
+      position: relative;
     }
 
     #passwordScreen label {
@@ -255,188 +255,222 @@
       <div class="card-title">Amazon Prime Account</div>
       <div class="card-desc">View your active Amazon Prime membership info.</div>
     </div>
-    <div class="card account-btn" data-account="cards" tabindex="0" role="button" aria-pressed="false" aria-label="Open credit card details">
+    <div class="card account-btn" data-account="creditCards" tabindex="0" role="button" aria-pressed="false" aria-label="Open Credit Cards details">
       <div class="card-icon">💳</div>
       <div class="card-title">Credit Cards</div>
-      <div class="card-desc">Sensitive credit card info — password protected.</div>
+      <div class="card-desc">Your linked credit cards and their details.</div>
     </div>
-    <div class="card account-btn" data-account="paidcourses" tabindex="0" role="button" aria-pressed="false" aria-label="Open paid courses details">
-      <div class="card-icon">💼</div>
+    <div class="card account-btn" data-account="paidCourses" tabindex="0" role="button" aria-pressed="false" aria-label="Open Paid Courses account details">
+      <div class="card-icon">📚</div>
       <div class="card-title">Paid Courses</div>
-      <div class="card-desc">Access your purchased course licenses and info here.</div>
+      <div class="card-desc">Details for your paid online courses.</div>
     </div>
   </main>
 
-  <section id="passwordScreen" aria-live="polite" aria-label="Password prompt">
-    <label for="passwordInput">Enter password:</label>
-    <input type="password" id="passwordInput" autocomplete="current-password" aria-required="true" aria-describedby="passwordError" />
-    <button id="passwordSubmit" aria-label="Submit password">Unlock</button>
+  <!-- Password prompt screen -->
+  <section id="passwordScreen" role="dialog" aria-modal="true" aria-labelledby="passwordScreenLabel" tabindex="-1">
+    <h2 id="passwordScreenLabel" style="color:#66fcf1; margin-bottom:1rem;">Enter Password</h2>
+    <form id="passwordForm" autocomplete="off" novalidate>
+      <label for="passwordInput">Please enter the password to view account details:</label>
+      <input type="password" id="passwordInput" aria-describedby="passwordError" required autofocus />
+      <button type="submit" id="passwordSubmit">Submit</button>
+    </form>
     <div id="passwordError" role="alert" aria-live="assertive"></div>
+    <button class="btn-back" id="backToListFromPassword" type="button" aria-label="Go back to account list">Back</button>
   </section>
 
-  <section id="accountDetailsSection" style="display:none; margin-top:2rem; max-width:900px; width: 100%;" aria-live="polite" aria-label="Account details">
-    <pre id="accountDetails" tabindex="0" aria-readonly="true"></pre>
-    <button class="btn-back" id="btnBack" aria-label="Back to accounts list">Back</button>
+  <!-- Account details screen -->
+  <section id="detailsScreen" style="display:none; max-width:900px; margin-top:2rem; user-select: text;">
+    <h2 id="detailsTitle" style="color:#66fcf1; margin-bottom:1rem;"></h2>
+    <pre id="accountDetails" tabindex="0" aria-live="polite" aria-atomic="true"></pre>
+    <button class="btn-back" id="backToListFromDetails" type="button" aria-label="Go back to account list">Back to Accounts</button>
   </section>
 
-  <div id="loadingOverlay" role="alert" aria-live="assertive">Loading...</div>
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" role="alert" aria-live="assertive" aria-busy="true" aria-label="Loading account details, please wait">
+    Loading...
+  </div>
 
   <script>
+    // Data for accounts including passwords and details
     const accounts = {
       steam: {
-        title: "Steam Account",
-        details: `Username: gurman123
+        password: "steamPass321",
+        details: `
+Username: gurman_tech
 Password: steamPass321
-Status: Premium
-Note: Steam Guard enabled`
-        , password: "steamPass321"
+Status: Active
+Subscription: Premium
+Last Login: 2025-05-20 18:30
+Profile: https://steamcommunity.com/id/gurman_tech
+        `.trim()
       },
       crunchyroll: {
-        title: "Crunchyroll Account",
-        details: `Username: gurman_crunch
+        password: "crunchy789",
+        details: `
+Username: gurman_tech
 Password: crunchy789
-Status: Premium
-Note: Ad-free experience enabled`
-        , password: "crunchy789"
+Subscription: Premium
+Expires: 2026-01-01
+Last Viewed: Attack on Titan, Naruto
+Profile: https://www.crunchyroll.com/user/gurman_tech
+        `.trim()
       },
       prime: {
-        title: "Amazon Prime Account",
-        details: `Username: gurman_prime
-Password: prime456
-Status: Active till 2026-08-12
-Note: Includes Prime Video and Delivery`
-        , password: "prime456"
+        password: "prime456",
+        details: `
+Name: Gurman Singh
+Email: gurman@example.com
+Subscription: Amazon Prime
+Valid Until: 2026-03-15
+Last Order: 2025-05-21
+Prime Video: Enabled
+        `.trim()
       },
-      cards: {
-        title: "Credit Cards",
-        details: `Visa Card:
-Number: 4111 1111 1111 1111
-Expiry: 12/26
-CVV: 123
-
-MasterCard:
-Number: 5500 0000 0000 0004
-Expiry: 09/25
-CVV: 456`,
-        password: "cardsPass123"
+      creditCards: {
+        password: "cardsPass123",
+        details: `
+Visa **** 1234
+Mastercard **** 5678
+Amex **** 9012
+Billing Address: 123 Gurman Street, Chandigarh
+Expiry: Various
+        `.trim()
       },
-      paidcourses: {
-        title: "Paid Courses",
-        details: `Course: Complete Python Bootcamp
-License Key: PYTHON-BOOTCAMP-2025
-Expires: 2026-12-31
-
-Course: Advanced Web Development
-License Key: WEBDEV-ADV-4567
-Expires: 2027-03-15`,
-        password: "gurman1234"
+      paidCourses: {
+        password: "gurman1234",
+        details: `
+Udemy: Complete Python Bootcamp
+Coursera: Data Science Specialization
+edX: CS50 Introduction to Computer Science
+Status: Active subscriptions
+        `.trim()
       }
     };
 
-    const mainContainer = document.getElementById('mainContainer');
-    const passwordScreen = document.getElementById('passwordScreen');
-    const passwordInput = document.getElementById('passwordInput');
-    const passwordSubmit = document.getElementById('passwordSubmit');
-    const passwordError = document.getElementById('passwordError');
-    const accountDetailsSection = document.getElementById('accountDetailsSection');
-    const accountDetails = document.getElementById('accountDetails');
-    const btnBack = document.getElementById('btnBack');
-    const loadingOverlay = document.getElementById('loadingOverlay');
+    // UI elements
+    const mainContainer = document.getElementById("mainContainer");
+    const passwordScreen = document.getElementById("passwordScreen");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordForm = document.getElementById("passwordForm");
+    const passwordError = document.getElementById("passwordError");
+    const backToListFromPassword = document.getElementById("backToListFromPassword");
 
-    let currentAccount = null;
+    const detailsScreen = document.getElementById("detailsScreen");
+    const detailsTitle = document.getElementById("detailsTitle");
+    const accountDetails = document.getElementById("accountDetails");
+    const backToListFromDetails = document.getElementById("backToListFromDetails");
 
-    // Show accounts list, hide others
-    function showAccountList() {
-      currentAccount = null;
-      mainContainer.style.display = 'grid';
-      passwordScreen.style.display = 'none';
-      accountDetailsSection.style.display = 'none';
-      passwordError.textContent = '';
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    // Variables to track current selected account
+    let currentAccountKey = null;
+
+    // Show main accounts list
+    function showMain() {
+      currentAccountKey = null;
+      passwordError.textContent = "";
+      passwordInput.value = "";
+      mainContainer.style.display = "grid";
+      passwordScreen.style.display = "none";
+      detailsScreen.style.display = "none";
+      loadingOverlay.classList.remove("active");
+      // Focus first account button for accessibility
+      const firstBtn = mainContainer.querySelector(".account-btn");
+      if (firstBtn) firstBtn.focus();
     }
 
-    // Show password prompt for given account
-    function showPasswordScreen(accountKey) {
-      currentAccount = accountKey;
-      mainContainer.style.display = 'none';
-      accountDetailsSection.style.display = 'none';
-      passwordScreen.style.display = 'block';
-      passwordInput.value = '';
-      passwordError.textContent = '';
+    // Show password prompt for chosen account
+    function showPasswordPrompt(accountKey) {
+      currentAccountKey = accountKey;
+      passwordError.textContent = "";
+      passwordInput.value = "";
+      mainContainer.style.display = "none";
+      detailsScreen.style.display = "none";
+      passwordScreen.style.display = "block";
+      loadingOverlay.classList.remove("active");
       passwordInput.focus();
-
-      // Update label dynamically for accessibility
-      const label = document.querySelector('#passwordScreen label');
-      label.textContent = `Enter password to unlock ${accounts[accountKey].title}:`;
     }
 
-    // Show account details after correct password
+    // Show account details after successful password
     function showAccountDetails(accountKey) {
-      currentAccount = null;
-      mainContainer.style.display = 'none';
-      passwordScreen.style.display = 'none';
-      accountDetailsSection.style.display = 'block';
-
-      // Show loading overlay for 0.8 seconds to simulate loading
-      loadingOverlay.classList.add('active');
-      accountDetails.textContent = ''; // Clear old content
-
-      setTimeout(() => {
-        loadingOverlay.classList.remove('active');
-        accountDetails.textContent = accounts[accountKey].details;
-        accountDetails.focus();
-      }, 800);
+      mainContainer.style.display = "none";
+      passwordScreen.style.display = "none";
+      detailsScreen.style.display = "block";
+      loadingOverlay.classList.remove("active");
+      detailsTitle.textContent = `Account Details - ${capitalize(accountKey)}`;
+      accountDetails.textContent = accounts[accountKey].details;
+      backToListFromDetails.focus();
     }
 
-    // When account button clicked or keyboard activated
-    function handleAccountClick(accountKey) {
-      showPasswordScreen(accountKey);
+    // Capitalize helper
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // Password submit handler
-    passwordSubmit.addEventListener('click', () => {
-      if (!currentAccount) return;
-      const correctPassword = accounts[currentAccount].password;
-      if (passwordInput.value === correctPassword) {
-        showAccountDetails(currentAccount);
-      } else {
-        passwordError.textContent = 'Incorrect password. Please try again.';
-        passwordInput.focus();
+    // On clicking an account card, show password prompt
+    mainContainer.addEventListener("click", (e) => {
+      const card = e.target.closest(".account-btn");
+      if (!card) return;
+      const accountKey = card.getAttribute("data-account");
+      if (accounts[accountKey]) {
+        showPasswordPrompt(accountKey);
       }
     });
 
-    // Submit password on Enter key
-    passwordInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        passwordSubmit.click();
-      }
-    });
-
-    // Back button to go back to accounts list
-    btnBack.addEventListener('click', () => {
-      showAccountList();
-    });
-
-    // Event delegation for account cards click and keyboard enter/space
-    mainContainer.addEventListener('click', (e) => {
-      const btn = e.target.closest('.account-btn');
-      if (!btn) return;
-      const accountKey = btn.dataset.account;
-      handleAccountClick(accountKey);
-    });
-
-    mainContainer.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        const btn = e.target.closest('.account-btn');
-        if (!btn) return;
-        const accountKey = btn.dataset.account;
-        handleAccountClick(accountKey);
+    // Support keyboard navigation (Enter or Space) on account cards
+    mainContainer.addEventListener("keydown", (e) => {
+      if (e.target.classList.contains("account-btn") && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
+        const accountKey = e.target.getAttribute("data-account");
+        if (accounts[accountKey]) {
+          showPasswordPrompt(accountKey);
+        }
       }
     });
 
-    // Initially show the accounts list
-    showAccountList();
+    // Handle password submission
+    passwordForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      passwordError.textContent = "";
+      if (!currentAccountKey) {
+        passwordError.textContent = "No account selected.";
+        return;
+      }
+      const enteredPassword = passwordInput.value.trim();
+      if (enteredPassword === "") {
+        passwordError.textContent = "Password cannot be empty.";
+        passwordInput.focus();
+        return;
+      }
+      loadingOverlay.classList.add("active");
 
+      // Simulate loading delay for 800ms before showing details or error
+      setTimeout(() => {
+        loadingOverlay.classList.remove("active");
+        if (enteredPassword === accounts[currentAccountKey].password) {
+          showAccountDetails(currentAccountKey);
+        } else {
+          passwordError.textContent = "Incorrect password. Please try again.";
+          passwordInput.value = "";
+          passwordInput.focus();
+        }
+      }, 800);
+    });
+
+    // Back button on password screen
+    backToListFromPassword.addEventListener("click", () => {
+      showMain();
+    });
+
+    // Back button on details screen
+    backToListFromDetails.addEventListener("click", () => {
+      showMain();
+    });
+
+    // Start by showing main accounts list
+    showMain();
   </script>
+
 </body>
 </html>
